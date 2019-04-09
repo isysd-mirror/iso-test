@@ -1,0 +1,17 @@
+{
+  "name": "@guld/iso-test",
+  "version": "0.2.0",
+  "description": "Isomorphic test framework for guld libs and apps",
+  "module": "index.js",
+  "scripts": {
+    "test": "timeout 1 node -r esm ./pass.js && echo; timeout 1 node ./server.js ./pass.js && f=$(timeout 1 node -r esm ./fail.js 2>&1); if [ $? -eq 1 ]; then printf '(node) ./fail.js\npass\tfail.js failed as expected\n\n'; else printf 'fail\tfailed to fail fail.js\n'; exit 1; fi && f=$(timeout 1 node ./server.js ./fail.js 2>&1); if [ $? -eq 1 ]; then printf '(browser) ./fail.js\npass\tfail.js failed as expected\n\n'; else printf 'fail\tfailed to fail fail.js\n'; exit 1; fi && f=$(timeout 1 node -r esm ./error.js 2>&1); if [ $? -eq 1 ]; then printf '(node) ./error.js\npass\terror.js failed as expected\n\n'; else printf 'fail\tfailed to fail error.js\n'; exit 1; fi && f=$(timeout 1 node ./server.js ./error.js 2>&1); if [ $? -eq 1 ]; then printf '(browser) ./error.js\npass\terror.js failed as expected\n\n'; else printf 'fail\tfailed to fail error.js\n'; exit 1; fi; echo 'All tests passed!'"
+  },
+  "author": "isysd",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "esm": "^3.2.22",
+    "express": "^4.16.4",
+    "tree-kill": "^1.2.1"
+  }
+}
