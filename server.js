@@ -15,17 +15,22 @@ var testpath = toload.replace(/\.(mjs|js)/, '.html')
 var testurl = `http://localhost:${test_port}${testpath}`
 var testscript = path.join(__dirname, 'index.js').replace(home, '')
 
+function killBrowser (code) {
+  kill(browser.pid, 'SIGKILL', function (err) {
+    process.exit(code)
+  })
+}
+
 app.use(express.static(home))
+
+app.get('*/.env', async function (req, res) {
+  res.sendFile(path.join(process.env.HOME, req.path), {dotfiles: "allow"})
+})
 
 app.get('/test/done', async function (req, res) {
   var url_parts = url.parse(req.url, true)
   var query = url_parts.query
   res.send('ok')
-  function killBrowser (code) {
-    kill(browser.pid, 'SIGKILL', function (err) {
-      process.exit(code)
-    })
-  }
   if (query && query.code === '0' && query.message) {
     // pass
     console.log(chalk.green(`(browser) ${toload}
@@ -62,14 +67,13 @@ app.get(testpath, async function (req, res) {
 })
 
 app.listen(test_port, () => {
-  /*console.log(`test http server listening on test port ${test_port} with pid ${process.pid}
+  console.log(`test http server listening on test port ${test_port} with pid ${process.pid}
 
 Automatically opening (and hopefully closing)
 
 ${testurl}
-`)*/
+`)
   browser = spawn('chromium-browser', [
-    '--headless',
     '--temp-profile',
     testurl
   ])
