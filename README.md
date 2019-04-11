@@ -17,3 +17,9 @@ node yourtest.js
 ```
 node ~/src/js/iso-test/server.js yourtest.js
 ```
+
+### Examples
+
+ + [passing test](https://github.com/isysd-mirror/iso-test/blob/isysd/pass.js)
+ + [failing test](https://github.com/isysd-mirror/iso-test/blob/isysd/fail.js)
+ + [error (fail) test](https://github.com/isysd-mirror/iso-test/blob/isysd/error.js)
