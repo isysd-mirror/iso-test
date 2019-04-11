@@ -1,2 +1,2 @@
-require = require("esm")(module)
-module.exports = require("./index.js")
+require = require('esm')(module)
+module.exports = require('./index.js')

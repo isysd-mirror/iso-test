@@ -1,15 +1,15 @@
-import * as cp from 'child_process'
+//import * as cp from 'child_process'
+import * as open from 'open'
 import * as os from 'os'
 import * as fs from 'fs'
+import * as util from 'util'
 import * as path from 'path'
 import * as kill from 'tree-kill'
-import * as chalk from 'chalk'
 import * as express from 'express'
 import * as url from 'url'
 import 'dotenv/config'
-chalk = chalk.default
 kill = kill.default
-const spawn = cp.spawn
+open = open.default
 const home = os.homedir()
 const USAGE = `Usage: iso-test <mytest.js>`
 const app = express.default()
@@ -30,15 +30,17 @@ try {
   process.exit(1)
 }
 
-const toload = path.resolve(process.argv[2]).replace(home, '')
+const toload = path.resolve(process.argv[2]).replace(home, '').replace(/\\/g, '/')
 var browser
 var testpath = toload.replace(/\.(mjs|js)/, '.html')
 var testurl = `http://localhost:${test_port}${testpath}`
-var testscript = path.join(__dirname, 'index.js').replace(home, '')
+var testscript = path.join(__dirname, 'index.js').replace(home, '').replace(/\\/g, '/')
 
-// First run test in node
+// First run test in node unless SKIPNODE is true
 // Will exit with code 1 if fail, or continue if all pass
-require(process.argv[2])
+if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(process.argv[2])
+// default to 5 second timeout since running externally
+process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
 
 function killBrowser (code) {
   /*
@@ -55,7 +57,7 @@ app.use(express.static(home))
 
 // *Do* serve .env files, unlike other dotfiles, since unit tests might need these.
 app.get('*/.env', async function (req, res) {
-  res.sendFile(path.join(process.env.HOME, req.path), {dotfiles: "allow"})
+  res.sendFile(path.join(process.env.HOME, req.path), { dotfiles: 'allow' })
 })
 
 // Route called by finishTest. Prints test results and initializes cleanup.
@@ -65,20 +67,26 @@ app.get('/test/done', async function (req, res) {
   res.send('ok')
   if (query && query.code === '0' && query.message) {
     // pass
-    console.log(chalk.green(`(browser) ${toload}
+    process.stdout.write(
+      `(browser) ${toload}
 pass\t${query.message}
-`))
+`
+    )
     killBrowser(0)
   } else {
     // fail
     if (query && query.message) {
-      console.error(chalk.red(`(browser) ${toload}
+      process.stderr.write(
+        `(browser) ${toload}
 fail:\t${query.message}
-`))
+`
+      )
     } else {
-      console.error(chalk.red(`(browser) ${toload}
+      process.stderr.write(
+        `(browser) ${toload}
 fail:\t${query}
-`))
+`
+      )
     }
     killBrowser(1)
   }
@@ -101,26 +109,74 @@ app.get(testpath, async function (req, res) {
 })
 
 // Start the test server.
-app.listen(test_port, () => {
+app.listen(test_port, async () => {
   // Print debug info if DEBUG.
-  if (process.env.DEBUG) console.log(`test http server listening on test port ${test_port} with pid ${process.pid}
+  if (process.env.DEBUG) {
+    console.log(
+      `test http server listening on test port ${test_port} with pid ${process.pid}
 
 Automatically opening (and hopefully closing)
 
 ${testurl}
-`)
+`
+    )
+  }
   // Sense browser and arguments from environment variables.
   var args = []
   process.env.BROWSER = process.env.BROWSER || 'chromium-browser'
-  if (process.env.BROWSER.startsWith('chrom')) {
+  if (process.env.BROWSER.indexOf('chromium') > -1) {
+    if (process.platform === 'win32' || process.platform === 'darwin') args.push('chromium')
+    else args.push('chromium-browser')
     args.push('--temp-profile')
+    if (
+      process.env.HEADLESS &&
+      process.env.HEADLESS !== '0' &&
+      process.env.HEADLESS !== 'false'
+    ) {
+      args.push('--headless')
+    }
+  } else if (process.env.BROWSER.indexOf('chrom') > -1) {
+    if (process.platform === 'darwin') args.push('google chrome')
+    else if (process.platform === 'win32') args.push('chrome')
+    else args.push('google-chrome')
+    args.push('--temp-profile')
+    if (
+      process.env.HEADLESS &&
+      process.env.HEADLESS !== '0' &&
+      process.env.HEADLESS !== 'false'
+    ) {
+      args.push('--headless')
+    }
   } else if (process.env.BROWSER.startsWith('firefox')) {
+    //if (process.platform === 'darwin' || process.platform === 'win32') 
+    args.push('firefox')
+    // maybe use headless
+    if (
+      (process.env.MOZ_HEADLESS &&
+      process.env.MOZ_HEADLESS !== '0' &&
+      process.env.MOZ_HEADLESS !== 'false') ||
+      (process.env.HEADLESS &&
+      process.env.HEADLESS !== '0' &&
+      process.env.HEADLESS !== 'false')
+    ) {
+      process.env.HEADLESS = process.env.MOZ_HEADLESS
+      args.push('--headless')
+    }
+    // create a test profile
+    //args.push('-P')
+    //args.push('iso-test')
+  } else if (process.env.BROWSER === 'edge') {
+    args.push('microsoft-edge')
+  } else if (process.env.BROWSER === 'safari') {
+    args.push('safari')
   }
-  if (process.env.HEADLESS && process.env.HEADLESS !== '0' && process.env.HEADLESS !== 'false') {
-    args.push('--headless')
-  }
-  args.push(testurl)
   // Spawn the browser process, saving the pid for cleanup.
-  browser = spawn(process.env.BROWSER, args)
+  browser = await open(testurl, {app: args}).catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
+  setTimeout(() => {
+    console.error('test timeout')
+    killBrowser(1)
+  }, parseInt(process.env.TEST_TIMEOUT))
 })
-
