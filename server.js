@@ -58,7 +58,10 @@ app.use(express.static(home))
 
 // *Do* serve .env files, unlike other dotfiles, since unit tests might need these.
 app.get('*/.env', async function (req, res) {
-  res.sendFile(path.join(process.env.HOME, req.path), { dotfiles: 'allow' })
+  // Support guld scoped path
+  var base = process.env.HOME
+  if (process.env.HOME === '/') base = `/@${process.env.USER}`
+  res.sendFile(path.join(base, req.path), { dotfiles: 'allow' })
 })
 
 // Route called by finishTest. Prints test results and initializes cleanup.
@@ -113,7 +116,7 @@ app.get(testpath, async function (req, res) {
 app.listen(test_port, async () => {
   // Print debug info if DEBUG.
   if (process.env.DEBUG) {
-    console.log(
+    process.stdout.write(
       `test http server listening on test port ${test_port} with pid ${process.pid}
 
 Automatically opening (and hopefully closing)
@@ -173,11 +176,11 @@ ${testurl}
   }
   // Spawn the browser process, saving the pid for cleanup.
   browser = await open(testurl, {app: args}).catch(e => {
-    console.error(e)
+    process.stderr.write(e)
     process.exit(1)
   })
   setTimeout(() => {
-    console.error('test timeout')
+    process.stderr.write('test timeout')
     killBrowser(1)
   }, parseInt(process.env.TEST_TIMEOUT))
 })
