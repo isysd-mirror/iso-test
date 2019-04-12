@@ -30,7 +30,8 @@ try {
   process.exit(1)
 }
 
-const toload = path.resolve(process.argv[2]).replace(home, '').replace(/\\/g, '/')
+const testfile = process.argv.pop()
+const toload = path.resolve(testfile).replace(home, '').replace(/\\/g, '/')
 var browser
 var testpath = toload.replace(/\.(mjs|js)/, '.html')
 var testurl = `http://localhost:${test_port}${testpath}`
@@ -38,7 +39,8 @@ var testscript = path.join(__dirname, 'index.js').replace(home, '').replace(/\\/
 
 // First run test in node unless SKIPNODE is true
 // Will exit with code 1 if fail, or continue if all pass
-if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(process.argv[2])
+console.log(path.join(process.cwd(), testfile))
+if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(path.join(process.cwd(), testfile))
 // default to 5 second timeout since running externally
 process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
 
