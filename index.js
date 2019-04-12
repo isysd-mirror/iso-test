@@ -27,7 +27,7 @@ export function finishTest (message) {
     // Running in nodejs.
     // Print results directly then exit if necessary.
     var os = require('os')
-    scriptpath = scriptpath ||
+    scriptpath = scriptpath || global.testfile ||
       process.argv
         .pop()
         .replace(process.env.HOME, '')

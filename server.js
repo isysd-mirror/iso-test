@@ -16,12 +16,13 @@ const app = express.default()
 const test_port = 3001
 
 // Validate arguments and print usage if necessary
-if (process.argv.length <= 2) {
+const testfile = global.testfile = process.argv.pop()
+if (testfile.endsWith('iso-test') || testfile.endsWith('server.node.js')) {
   console.log(USAGE)
   process.exit(1)
 }
 try {
-  if (!fs.statSync(process.argv[2]).isFile()) {
+  if (!fs.statSync(testfile).isFile()) {
     console.log(USAGE)
     process.exit(1)
   }
@@ -30,7 +31,6 @@ try {
   process.exit(1)
 }
 
-const testfile = process.argv.pop()
 const toload = path.resolve(testfile).replace(home, '').replace(/\\/g, '/')
 var browser
 var testpath = toload.replace(/\.(mjs|js)/, '.html')
