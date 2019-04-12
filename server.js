@@ -39,8 +39,7 @@ var testscript = path.join(__dirname, 'index.js').replace(home, '').replace(/\\/
 
 // First run test in node unless SKIPNODE is true
 // Will exit with code 1 if fail, or continue if all pass
-console.log(path.join(process.cwd(), testfile))
-if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(path.join(process.cwd(), testfile))
+if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(path.join(process.cwd(), path.basename(testfile)))
 // default to 5 second timeout since running externally
 process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
 
