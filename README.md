@@ -1,6 +1,8 @@
 # iso-test
 
-An isomorphic testing framework using nodejs and a generic browser (firefox, safari, chrome, and chromium-browser supported, so far). Runs the same test code in both environments, and fails on any uncaught errors, or if `finishTest` is called with an argument that doesn't start with `pass`.
+[![Build Status](https://travis-ci.org/isysd-mirror/iso-test.svg?branch=isysd)](https://travis-ci.org/isysd-mirror/iso-test)
+
+An isomorphic testing framework using nodejs and a generic browser (firefox, safari, chrome, and chromium supported, so far). Runs the same test code in both environments, and fails on any uncaught errors, or if `finishTest` is called with an argument that doesn't start with `pass`.
 
 ### Usage
 
@@ -26,7 +28,7 @@ Environment variables and `.env` files are used to configure iso-test. Interpret
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| BROWSER  | chromium-browser | Browser executable to run (firefox, safari, chrome, and chromium-browser supported) |
+| BROWSER  | chromium | Browser executable to run (firefox, safari, chrome, and chromium supported) |
 | HEADLESS | 0       | Run in headless mode if 1/true |
 | SKIPNODE | 0       | Skip running the tests in node and only try the browser. |
 | DEBUG    | 0       | Print extra debug lines. |

@@ -26,7 +26,6 @@ matrix:
     env: BROWSER=firefox MOZ_HEADLESS=1 TEST_TIMEOUT=5000
     addons:
       firefox: "latest"
-    before_install: ls /Applications/Firefox.app/Contents/MacOS/
   - os: osx
     env: BROWSER=safari HEADLESS=1 TEST_TIMEOUT=5000
     addons:
@@ -39,10 +38,10 @@ matrix:
 # Firefox and Chromium not working on Windows, for some reason :/
 #
 #  - os: windows
-#    env: BROWSER=chromium-browser TEST_TIMEOUT=10000 DEBUG=1
+#    env: BROWSER=chromium-browser HEADLESS=1 TEST_TIMEOUT=10000 DEBUG=1
 #    before_install: choco install chromium
 #  - os: windows
-#    env: BROWSER=firefox TEST_TIMEOUT=10000 DEBUG=1
+#    env: BROWSER=firefox HEADLESS=1 TEST_TIMEOUT=10000 DEBUG=1
 #    before_install: choco install firefox
 language: node_js
 node_js:
