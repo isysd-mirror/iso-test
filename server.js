@@ -1,18 +1,16 @@
-//import * as cp from 'child_process'
-import * as open from 'open'
 import * as os from 'os'
 import * as fs from 'fs'
 import * as util from 'util'
 import * as path from 'path'
-import * as kill from 'tree-kill'
+import * as open from '../open/index.js'
+import * as kill from '../tree-kill/index.js'
 import * as http from 'http'
 import * as url from 'url'
-import 'dotenv/config'
+import '../dotenv/config.js'
 kill = kill.default
 open = open.default
 const home = os.homedir()
 const USAGE = `Usage: iso-test <mytest.js>`
-//const app = express.default()
 const test_port = 3001
 
 // Validate arguments and print usage if necessary

@@ -8,15 +8,19 @@
     "iso-test": "./server.node.js"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "preinstall": "gpm -n .. -t .. -i ."
   },
   "author": "isysd",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^7.0.0",
-    "esm": "^3.2.22",
-    "open": "^6.1.0",
-    "tree-kill": "^1.2.1"
+    "dotenv": "../dotenv",
+    "esm": "../esm",
+    "open": "../open",
+    "tree-kill": "../tree-kill"
+  },
+  "peerDependencies": {
+    "gpm": "https://github.com/isysd-mirror/gpm.git#isysd"
   },
   "repository": {
     "type": "git",
