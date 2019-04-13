@@ -5,14 +5,14 @@ import * as fs from 'fs'
 import * as util from 'util'
 import * as path from 'path'
 import * as kill from 'tree-kill'
-import * as express from 'express'
+import * as http from 'http'
 import * as url from 'url'
 import 'dotenv/config'
 kill = kill.default
 open = open.default
 const home = os.homedir()
 const USAGE = `Usage: iso-test <mytest.js>`
-const app = express.default()
+//const app = express.default()
 const test_port = 3001
 
 // Validate arguments and print usage if necessary
@@ -52,23 +52,37 @@ function killBrowser (code) {
   })
 }
 
-// Serve everything in the user's home directory, in case some dependencies are not in PWD.
-// Note that express will not server dotfiles.
-app.use(express.static(home))
-
-// *Do* serve .env files, unlike other dotfiles, since unit tests might need these.
-app.get('*/.env', async function (req, res) {
-  // Support guld scoped path
-  var base = process.env.HOME
-  if (process.env.HOME === '/') base = `/@${process.env.USER}`
-  res.sendFile(path.join(base, req.path), { dotfiles: 'allow' })
-})
+// Serve static files
+export async function filehandler (req, res) {
+  // forbid dotfiles in home 
+  if (req.pathname.startsWith('/.')) {
+    res.writeHead(401)
+    res.end('Forbidden')
+  } else {
+    // send the file
+    // Support guld scoped path
+    var base = process.env.HOME
+    if (process.env.HOME === '/') base = `/@${process.env.USER}`
+    var fp = path.join(base, req.pathname)
+    fs.readFile(fp, {encoding: 'utf8'}, (e, f) => {
+      if (f) {
+        // try to guess mime type, at least supporting JS...
+        var mime = 'text/plain'
+        if (fp.endsWith('js')) mime = 'application/javascript'
+        res.writeHead(200, {'Content-Type': mime})
+        res.end(f)
+      } else {
+        res.writeHead(404)
+        res.end(`No ${req.pathname} found`)
+      }
+    })
+  }
+}
 
 // Route called by finishTest. Prints test results and initializes cleanup.
-app.get('/test/done', async function (req, res) {
+function finishTestHandler (req, res) {
   var url_parts = url.parse(req.url, true)
   var query = url_parts.query
-  res.send('ok')
   if (query && query.code === '0' && query.message) {
     // pass
     process.stdout.write(
@@ -76,6 +90,8 @@ app.get('/test/done', async function (req, res) {
 pass\t${query.message}
 `
     )
+    res.writeHead(200)
+    res.end()
     killBrowser(0)
   } else {
     // fail
@@ -92,13 +108,15 @@ fail:\t${query}
 `
       )
     }
+    res.writeHead(200)
+    res.end()
     killBrowser(1)
   }
-})
+}
 
 // Dynamic html generator to load test case.
 // Creates a plain html file with only the iso-test module and your test.
-app.get(testpath, async function (req, res) {
+function testPageHandler (req, res) {
   var content = `
 <!DOCTYPE html>
 <html>
@@ -109,11 +127,22 @@ app.get(testpath, async function (req, res) {
 <script type="module" src="${toload}"></script>
 </html>
 `
-  return res.send(content)
+  res.writeHead(200, {'content-type': 'text/html'})
+  res.end(content)
+}
+
+// create HTTP test server
+const server = http.createServer((req, res) => {
+  var u = url.parse(req.url, true)
+  req.query = u.query
+  req.pathname = u.pathname
+  if (req.pathname === testpath) testPageHandler(req, res)
+  else if (req.pathname === '/test/done') finishTestHandler(req, res)
+  else filehandler(req, res)
 })
 
 // Start the test server.
-app.listen(test_port, async () => {
+server.listen(test_port, async () => {
   // Print debug info if DEBUG.
   if (process.env.DEBUG) {
     process.stdout.write(
