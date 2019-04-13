@@ -1,3 +1,5 @@
+before_install:
+  - npm i -g https://github.com/isysd-mirror/gpm.git
 matrix:
   include:
   - os: linux
@@ -33,7 +35,8 @@ matrix:
         casks: safari
   - os: windows
     env: BROWSER=google-chrome-stable HEADLESS=1 TEST_TIMEOUT=10000 DEBUG=1
-    before_install: choco install googlechrome
+    before_install:
+      - choco install googlechrome
 # 
 # Firefox and Chromium not working on Windows, for some reason :/
 #

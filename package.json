@@ -20,7 +20,7 @@
     "tree-kill": "../tree-kill"
   },
   "peerDependencies": {
-    "gpm": "https://github.com/isysd-mirror/gpm.git#isysd"
+    "gpm": "https://github.com/isysd-mirror/gpm.git"
   },
   "repository": {
     "type": "git",
