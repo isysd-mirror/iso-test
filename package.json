@@ -4,12 +4,13 @@
   "description": "Isomorphic test framework for browser & node libs and apps.",
   "main": "index.node.js",
   "module": "index.js",
+  "esm": true,
   "bin": {
     "iso-test": "./server.node.js"
   },
   "scripts": {
     "test": "node test.js",
-    "preinstall": "gpm -n .. -t .. -u https -i ."
+    "preinstall": "gpm -n .. -t .. -u https -i .; cd ..; cd esm; npm i; cd ..; cd iso-test;"
   },
   "author": "isysd",
   "license": "MIT",
