@@ -37,6 +37,8 @@ matrix:
     env: BROWSER=google-chrome-stable HEADLESS=1 TEST_TIMEOUT=10000 DEBUG=1
     before_install:
       - choco install googlechrome
+      - npm i -g https://github.com/isysd-mirror/gpm.git
+
 # 
 # Firefox and Chromium not working on Windows, for some reason :/
 #
