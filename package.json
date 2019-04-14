@@ -1,6 +1,6 @@
 {
   "name": "iso-test",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Isomorphic test framework for browser & node libs and apps.",
   "main": "index.node.js",
   "module": "index.js",
