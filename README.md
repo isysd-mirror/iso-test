@@ -33,3 +33,7 @@ Environment variables and `.env` files are used to configure iso-test. Interpret
 | SKIPNODE | 0       | Skip running the tests in node and only try the browser. |
 | DEBUG    | 0       | Print extra debug lines. |
 | TEST_TIMEOUT | 5000 | Maximum text execution time in ms. |
+
+### Isomorphic modules
+
+This package implements the [iso-module-boilerplate](https://github.com/isysd-mirror/iso-module-boilerplate) pattern, and is used there by default.
