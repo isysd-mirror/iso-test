@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "node test.js",
-    "preinstall": "gpm -n .. -t .. -u https -i .; cd ..; cd esm; npm i; cd ..; cd iso-test;"
+    "preinstall": "gpm -n .. -t .. -u https -i .",
+    "postintall": "node -e \"require('child_process').execSync('npm i', {cwd: require('path').join('..', 'esm')})\""
   },
   "author": "isysd",
   "license": "MIT",
