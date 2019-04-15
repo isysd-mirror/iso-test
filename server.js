@@ -44,6 +44,7 @@ process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
 function killBrowser (code) {
   /*
    * Kill the browser process which was started to run the test.
+   * When done, also kill this test server process.
    */
   kill(browser.pid, 'SIGKILL', function (err) {
     process.exit(code)
@@ -81,28 +82,31 @@ export async function filehandler (req, res) {
 function finishTestHandler (req, res) {
   var url_parts = url.parse(req.url, true)
   var query = url_parts.query
-  if (query && query.code === '0' && query.message) {
+  if (query && query.code === '0' && query.message.startsWith('pass')) {
     // pass
     process.stdout.write(
-      `(browser) ${toload}
-pass\t${query.message}
+      `(browser)\tpass\t${query.message.replace(/pass */, '')}
 `
     )
     res.writeHead(200)
     res.end()
+  } else if (query.message == 'kill') {
+    /*process.stdout.write(
+      `(browser)\tpass\tall tests!
+`
+    )*/
+    // done testing, kill the browser
     killBrowser(0)
   } else {
     // fail
     if (query && query.message) {
       process.stderr.write(
-        `(browser) ${toload}
-fail:\t${query.message}
+        `(browser)\tfail:\t${query.message}
 `
       )
     } else {
       process.stderr.write(
-        `(browser) ${toload}
-fail:\t${query}
+        `(browser)\tfail:\t${query}
 `
       )
     }

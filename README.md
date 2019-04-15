@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/isysd-mirror/iso-test.svg?branch=isysd)](https://travis-ci.org/isysd-mirror/iso-test)
 
-An isomorphic testing framework using nodejs and a generic browser (firefox, safari, chrome, and chromium supported, so far). Runs the same test code in both environments, and fails on any uncaught errors, or if `finishTest` is called with an argument that doesn't start with `pass`.
+An isomorphic testing framework using nodejs and a generic browser (firefox, safari, chrome, and chromium supported, so far). Runs the same test code in both environments, and fails on any uncaught errors, or if `finishTest` is called with an argument that doesn't start with `pass` or `kill`.
 
 ### Usage
 
-Writing unit tests with iso-test is very easy. Simply import `finishTest` and call it with either `pass ${successMessage}` or `anything else is failure`.
+Writing unit tests with iso-test is very easy. Simply import `finishTest` and call it with either `pass ${successMessage}` or `fail ${failmessage}`. A third command word `kill` tells the test runner to kill any browser processes when it is passed to finishTest from the browser. All other message formats are considered fail cases.
 
 Then to run the tests, pass your test script to the `iso-test` command.
 

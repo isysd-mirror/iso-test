@@ -26,6 +26,12 @@ export function finishTest (message) {
   if (typeof process !== 'undefined' && process.exit) {
     // Running in nodejs.
     // Print results directly then exit if necessary.
+    if (message === 'kill') {
+      // node tests done, now continue with browsers
+      /*process.stdout.write(`(node.js)\tpass\tall tests!
+`)*/
+      return
+    }
     var os = require('os')
     scriptpath = scriptpath || global.testfile ||
       process.argv
@@ -34,11 +40,9 @@ export function finishTest (message) {
         .replace(os.homedir(), '')
         .replace(/\\/g, '/')
     if (exitcode === 0) {
-      process.stdout.write(`(node) ${scriptpath}\n`)
-      process.stdout.write(`pass\t${message}\n`)
+      process.stdout.write(`(node.js)\tpass\t${message.replace(/pass */, '')}\n`)
     } else {
-      process.stderr.write(`(node) ${scriptpath}\n`)
-      process.stderr.write(`fail\t${message}\n`)
+      process.stderr.write(`(node.js)\tfail\t${message}\n`)
       process.exit(exitcode)
     }
   } else {
