@@ -61,9 +61,10 @@ export async function filehandler (req, res) {
   } else {
     // send the file
     // Support guld scoped path
-    var base = process.env.HOME
-    if (process.env.HOME === '/') base = `/@${process.env.USER}`
-    var fp = path.join(base, req.pathname)
+    var fp = path.join(home, req.pathname)
+  if (process.env.DEBUG) {
+    process.stdout.write(`Request for file:\t${fp}
+`)
     fs.readFile(fp, {encoding: 'utf8'}, (e, f) => {
       if (f) {
         // try to guess mime type, at least supporting JS...
@@ -83,6 +84,10 @@ export async function filehandler (req, res) {
 function finishTestHandler (req, res) {
   var url_parts = url.parse(req.url, true)
   var query = url_parts.query
+  if (process.env.DEBUG) {
+    process.stdout.write(`query:\t${JSON.stringify(query, null, 2)}
+`)
+  }
   if (query && query.code === '0' && query.message.startsWith('pass')) {
     // pass
     process.stdout.write(
