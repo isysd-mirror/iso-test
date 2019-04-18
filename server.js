@@ -100,10 +100,6 @@ function finishTestHandler (req, res) {
     res.writeHead(200)
     res.end()
   } else if (query.message == 'kill') {
-    /*process.stdout.write(
-      `(browser)\tpass\tall tests!
-`
-    )*/
     // done testing, kill the browser
     killBrowser(0)
   } else {
@@ -136,6 +132,9 @@ function testPageHandler (req, res) {
 <body></body>
 <script type="module" src="${testscript}"></script>
 <script type="module" src="${toload}"></script>
+<script>
+  window.sysenv = ${JSON.stringify(process.env)}
+</script>
 </html>
 `
   res.writeHead(200, {'content-type': 'text/html'})

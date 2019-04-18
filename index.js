@@ -11,6 +11,16 @@ export function finishTest (message) {
    * If called from a browser, will make a get request to the test server, forwarding the result.
    */
   var exitcode = 1
+  if (typeof message !== 'string') {
+    if (message.hasOwnProperty('toString')) message = message.toString()
+    else {
+      try {
+        message = JSON.stringify(message)
+      } catch (e) {
+        message = `${message}`
+      }
+    }
+  }
   if (message.match(/^pass.*/i)) exitcode = 0
   // If in browser, try to set the title and body to the message, for visual debugging
   if (typeof window === 'object') {
@@ -23,7 +33,7 @@ export function finishTest (message) {
       // ignore
     }
   }
-  if (typeof process !== 'undefined' && process.exit) {
+  if (typeof process !== 'undefined' && process.title && process.title.startsWith('node') && process.exit) {
     // Running in nodejs.
     // Print results directly then exit if necessary.
     if (message === 'kill') {
@@ -61,6 +71,12 @@ if (typeof window !== 'undefined') {
       `message: ${message}\nline: ${lineno}\ncol: ${colno}\nfrom: ${source}\nerror: ${error}`
     )
   }
+
+  window.addEventListener('unhandledrejection', function(event) {
+    finishTest(
+      `ERROR unhandled: ${event}`
+    )
+  })
 } else if (typeof process !== 'undefined') {
   // capture and color output?
 }
