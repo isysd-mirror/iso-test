@@ -12,6 +12,7 @@ open = open.default
 const home = os.homedir()
 const USAGE = `Usage: iso-test <mytest.js>`
 const test_port = 3001
+var tempdir
 
 // Validate arguments and print usage if necessary
 const testfile = global.testfile = process.argv.pop()
@@ -42,12 +43,32 @@ if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'fa
 // default to 5 second timeout since running externally
 process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
 
+function rimrafSync (d) {
+  /*
+   * Remove directory and everything in it. (rm -rf)
+   * For cleaning up temporary browser profiles.
+   */
+  try {
+    var stat = fs.lstatSync(d)
+  } catch (e) {
+    if (process.env.DEBUG) console.warn(e)
+  }
+  if (stat && stat.isDirectory()) {
+    var flist = fs.readdirSync(d)
+    flist.forEach(f => rimrafSync(path.join(d, f)))
+    fs.rmdirSync(d)
+  } else if (stat && (stat.isFile() || stat.isSymbolicLink())) {
+    fs.unlinkSync(d)
+  }
+}
+
 function killBrowser (code) {
   /*
    * Kill the browser process which was started to run the test.
    * When done, also kill this test server process.
    */
   kill(browser.pid, 'SIGKILL', function (err) {
+    if (tempdir) rimrafSync(tempdir)
     process.exit(code)
   })
 }
@@ -128,6 +149,7 @@ function testPageHandler (req, res) {
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 </head>
 <body></body>
 <script type="module" src="${testscript}"></script>
@@ -211,8 +233,10 @@ ${toload}
       args.push('--headless')
     }
     // create a test profile
-    //args.push('-P')
-    //args.push('iso-test')
+    args.push('--profile')
+    tempdir = path.join(os.tmpdir(), `iso-test-${Date.now()}`)
+    fs.mkdirSync(tempdir)
+    args.push(tempdir)
   } else if (process.env.BROWSER === 'edge') {
     args.push('microsoft-edge')
   } else if (process.env.BROWSER === 'safari') {
@@ -224,7 +248,8 @@ ${toload}
     process.exit(1)
   })
   setTimeout(() => {
-    process.stderr.write('test timeout')
+    process.stderr.write(`test timeout
+`)
     killBrowser(1)
   }, parseInt(process.env.TEST_TIMEOUT))
 })

@@ -33,7 +33,13 @@ export function finishTest (message) {
       // ignore
     }
   }
-  if (typeof process !== 'undefined' && process.title && process.title.startsWith('node') && process.exit) {
+  if (typeof fetch !== 'undefined') {
+    // Running in browser.
+    // Forward results to test server.
+    fetch(
+      `http://localhost:3001/test/done?code=${exitcode}&message=${encodeURIComponent(message)}`
+    )
+  } else {
     // Running in nodejs.
     // Print results directly then exit if necessary.
     if (message === 'kill') {
@@ -55,13 +61,7 @@ export function finishTest (message) {
       process.stderr.write(`(node.js)\tfail\t${message}\n`)
       process.exit(exitcode)
     }
-  } else {
-    // Running in browser.
-    // Forward results to test server.
-    if (typeof(process) !== 'undefined') console.log(process)
-    fetch(
-      `http://localhost:3001/test/done?code=${exitcode}&message=${encodeURIComponent(message)}`
-    )
+
   }
 }
 

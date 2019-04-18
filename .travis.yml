@@ -3,33 +3,33 @@ before_install:
 matrix:
   include:
   - os: linux
-    env: BROWSER=chromium-browser HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=chromium-browser HEADLESS=1
     addons:
       apt:
         packages: chromium-browser
   - os: linux
-    env: BROWSER=google-chrome-stable HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=google-chrome-stable HEADLESS=1
     addons:
       chrome: "stable"
   - os: linux
-    env: BROWSER=firefox MOZ_HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=firefox MOZ_HEADLESS=1 TEST_TIMEOUT=10000
     addons:
       firefox: "latest"
   - os: osx
-    env: BROWSER=chromium-browser HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=chromium-browser HEADLESS=1
     addons:
       homebrew:
         casks: chromium
   - os: osx
-    env: BROWSER=google-chrome-stable HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=google-chrome-stable HEADLESS=1
     addons:
       chrome: "stable"
   - os: osx
-    env: BROWSER=firefox MOZ_HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=firefox MOZ_HEADLESS=1 TEST_TIMEOUT=10000
     addons:
       firefox: "latest"
   - os: osx
-    env: BROWSER=safari HEADLESS=1 TEST_TIMEOUT=5000
+    env: BROWSER=safari HEADLESS=1
     addons:
       homebrew:
         casks: safari
