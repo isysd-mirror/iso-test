@@ -58,7 +58,7 @@ export function finishTest (message) {
   } else {
     // Running in browser.
     // Forward results to test server.
-    if (process) console.log(process)
+    if (typeof(process) !== 'undefined') console.log(process)
     fetch(
       `http://localhost:3001/test/done?code=${exitcode}&message=${encodeURIComponent(message)}`
     )
