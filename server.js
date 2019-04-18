@@ -75,6 +75,10 @@ export async function filehandler (req, res) {
       } else {
         res.writeHead(404)
         res.end(`No ${req.pathname} found`)
+        if (process.env.DEBUG) {
+          process.stdout.write(`No ${fp} found
+`)}
+
       }
     })
   }
