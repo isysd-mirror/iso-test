@@ -34,7 +34,7 @@ var browser
 var testpath = toload.replace(/\.(mjs|js)/, '.html')
 var testurl = `http://localhost:${test_port}${testpath}`
 // __dirname not working with symlinks...
-var testscript = path.resolve(process.env.PWD, '../', 'iso-test', 'index.js').replace(home, '').replace(/\\/g, '/')
+var testscript = path.resolve(process.env.PWD, '..', 'iso-test', 'index.js').replace(home, '').replace(/\\/g, '/')
 
 // First run test in node unless SKIPNODE is true
 // Will exit with code 1 if fail, or continue if all pass
@@ -154,6 +154,11 @@ server.listen(test_port, async () => {
 Automatically opening (and hopefully closing)
 
 ${testurl}
+
+Which loads
+
+${testscript}
+${toload}
 `
     )
   }
