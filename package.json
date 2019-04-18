@@ -9,7 +9,7 @@
     "iso-test": "./server.node.js"
   },
   "scripts": {
-    "test": "node test.js",
+    "test": "node ./test.js",
     "gpminstall": "npm i -g https://github.com/isysd-mirror/gpm.git#isysd",
     "preinstall": "gpm -n .. -t .. -u https -i .",
     "postinstall": "node -e \"try { require('../esm/esm.js')(module); } catch (e) {require('child_process').execSync('npm i', {cwd: require('path').join('..', 'esm')})}\""

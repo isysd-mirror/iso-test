@@ -29,7 +29,7 @@ try {
   process.exit(1)
 }
 
-const toload = path.resolve(process.env.PWD, testfile).replace(home, '').replace(/\\/g, '/')
+const toload = path.resolve(process.env.PWD, path.basename(testfile)).replace(home, '').replace(/\\/g, '/')
 var browser
 var testpath = toload.replace(/\.(mjs|js)/, '.html')
 var testurl = `http://localhost:${test_port}${testpath}`
@@ -62,9 +62,9 @@ export async function filehandler (req, res) {
     // send the file
     // Support guld scoped path
     var fp = path.join(home, req.pathname)
-  if (process.env.DEBUG) {
+    if (process.env.DEBUG) {
     process.stdout.write(`Request for file:\t${fp}
-`)
+`)}
     fs.readFile(fp, {encoding: 'utf8'}, (e, f) => {
       if (f) {
         // try to guess mime type, at least supporting JS...
@@ -86,8 +86,7 @@ function finishTestHandler (req, res) {
   var query = url_parts.query
   if (process.env.DEBUG) {
     process.stdout.write(`query:\t${JSON.stringify(query, null, 2)}
-`)
-  }
+`)}
   if (query && query.code === '0' && query.message.startsWith('pass')) {
     // pass
     process.stdout.write(
