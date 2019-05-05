@@ -1,7 +1,8 @@
 import * as os from 'os'
 import * as fs from 'fs'
-import * as util from 'util'
 import * as path from 'path'
+import global from '../global/global.js'
+import { Process } from '../process/process.js'
 import * as open from '../open/index.js'
 import * as kill from '../tree-kill/index.js'
 import * as http from 'http'
@@ -9,9 +10,10 @@ import * as url from 'url'
 import '../dotenv/config.js'
 kill = kill.default
 open = open.default
-const home = os.homedir()
+global.process = Process.getProcess()
+const home = global.process.options.env.HOME
 const USAGE = `Usage: iso-test <mytest.js>`
-const test_port = 3001
+const TEST_PORT = process.env.TEST_PORT || 3001
 var tempdir
 
 // Validate arguments and print usage if necessary
@@ -30,18 +32,20 @@ try {
   process.exit(1)
 }
 
-const toload = path.resolve(process.env.PWD, path.basename(testfile)).replace(home, '').replace(/\\/g, '/')
+const toload = path.resolve(process.pwd, path.basename(testfile)).replace(home, '').replace(/\\/g, '/')
 var browser
 var testpath = toload.replace(/\.(mjs|js)/, '.html')
-var testurl = `http://localhost:${test_port}${testpath}`
+var testurl = `http://localhost:${TEST_PORT}${testpath}`
 // __dirname not working with symlinks...
-var testscript = path.resolve(process.env.PWD, '..', 'iso-test', 'index.js').replace(home, '').replace(/\\/g, '/')
+var testscript = path.resolve(process.pwd, '..', 'iso-test', 'index.js').replace(home, '').replace(/\\/g, '/')
 
 // First run test in node unless SKIPNODE is true
 // Will exit with code 1 if fail, or continue if all pass
-if (typeof(process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(path.join(process.env.PWD, path.basename(testfile)))
-// default to 5 second timeout since running externally
-process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
+if (typeof (process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(path.join(process.env.PWD, path.basename(testfile)))
+
+// default to 10 second timeout since running externally,
+// possibly in test env like headless
+process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 10000
 
 function rimrafSync (d) {
   /*
@@ -68,6 +72,7 @@ function killBrowser (code) {
    * When done, also kill this test server process.
    */
   kill(browser.pid, 'SIGKILL', function (err) {
+    if (err) console.error(err)
     if (tempdir) rimrafSync(tempdir)
     process.exit(code)
   })
@@ -75,7 +80,7 @@ function killBrowser (code) {
 
 // Serve static files
 export async function filehandler (req, res) {
-  // forbid dotfiles in home 
+  // forbid dotfiles in home
   if (req.pathname.startsWith('/.')) {
     res.writeHead(401)
     res.end('Forbidden')
@@ -84,22 +89,23 @@ export async function filehandler (req, res) {
     // Support guld scoped path
     var fp = path.join(home, req.pathname)
     if (process.env.DEBUG) {
-    process.stdout.write(`Request for file:\t${fp}
-`)}
-    fs.readFile(fp, {encoding: 'utf8'}, (e, f) => {
+      process.stdout.write(`Request for file:\t${fp}
+`)
+    }
+    fs.readFile(fp, { encoding: 'utf8' }, (e, f) => {
       if (f) {
         // try to guess mime type, at least supporting JS...
         var mime = 'text/plain'
         if (fp.endsWith('js')) mime = 'application/javascript'
-        res.writeHead(200, {'Content-Type': mime})
+        res.writeHead(200, { 'Content-Type': mime })
         res.end(f)
       } else {
         res.writeHead(404)
         res.end(`No ${req.pathname} found`)
         if (process.env.DEBUG) {
           process.stdout.write(`No ${fp} found
-`)}
-
+`)
+        }
       }
     })
   }
@@ -107,11 +113,12 @@ export async function filehandler (req, res) {
 
 // Route called by finishTest. Prints test results and initializes cleanup.
 function finishTestHandler (req, res) {
-  var url_parts = url.parse(req.url, true)
-  var query = url_parts.query
+  var urlParts = url.parse(req.url, true)
+  var query = urlParts.query
   if (process.env.DEBUG) {
     process.stdout.write(`query:\t${JSON.stringify(query, null, 2)}
-`)}
+`)
+  }
   if (query && query.code === '0' && query.message.startsWith('pass')) {
     // pass
     process.stdout.write(
@@ -120,7 +127,7 @@ function finishTestHandler (req, res) {
     )
     res.writeHead(200)
     res.end()
-  } else if (query.message == 'kill') {
+  } else if (query.message === 'kill') {
     // done testing, kill the browser
     killBrowser(0)
   } else {
@@ -150,16 +157,20 @@ function testPageHandler (req, res) {
 <html>
 <head>
 <meta charset="UTF-8">
+<script type="module">
+  import global from '../global/global.js'
+  import { Process } from '../process/process.js'
+  global.process = Process.getProcess()
+  global.process.options.env = global.process.options.env || {}
+  global.process.options.env = Object.assign(global.process.options.env, ${JSON.stringify(process.env)})
+  import '${testscript}'
+</script>
 </head>
 <body></body>
-<script type="module" src="${testscript}"></script>
 <script type="module" src="${toload}"></script>
-<script>
-  window.sysenv = ${JSON.stringify(process.env)}
-</script>
 </html>
 `
-  res.writeHead(200, {'content-type': 'text/html'})
+  res.writeHead(200, { 'content-type': 'text/html' })
   res.end(content)
 }
 
@@ -174,11 +185,11 @@ const server = http.createServer((req, res) => {
 })
 
 // Start the test server.
-server.listen(test_port, async () => {
+server.listen(TEST_PORT, async () => {
   // Print debug info if DEBUG.
   if (process.env.DEBUG) {
     process.stdout.write(
-      `test http server listening on test port ${test_port} with pid ${process.pid}
+      `test http server listening on test port ${TEST_PORT} with pid ${process.pid} and pwd ${process.env.PWD}
 
 Automatically opening (and hopefully closing)
 
@@ -218,7 +229,7 @@ ${toload}
       args.push('--headless')
     }
   } else if (process.env.BROWSER.startsWith('firefox')) {
-    //if (process.platform === 'darwin' || process.platform === 'win32') 
+    // if (process.platform === 'darwin' || process.platform === 'win32')
     args.push('firefox')
     // maybe use headless
     if (
@@ -243,7 +254,7 @@ ${toload}
     args.push('safari')
   }
   // Spawn the browser process, saving the pid for cleanup.
-  browser = await open(testurl, {app: args}).catch(e => {
+  browser = await open(testurl, { app: args }).catch(e => {
     process.stderr.write(e)
     process.exit(1)
   })

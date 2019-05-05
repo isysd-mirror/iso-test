@@ -1,7 +1,8 @@
 const { spawn } = require('child_process')
 const path = require('path')
+var test
 
-async function runTest (p, expectfail=false, skipnode=false) {
+async function runTest (p, expectfail = false, skipnode = false) {
   return new Promise(resolve => {
     var options = {
       env: {},

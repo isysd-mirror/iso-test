@@ -1,3 +1,7 @@
+/* global fetch:false */
+import global from '../global/global.js'
+import { Process } from '../process/process.js'
+global.process = Process.getProcess()
 var scriptpath
 
 export function finishTest (message) {
@@ -44,8 +48,8 @@ export function finishTest (message) {
     // Print results directly then exit if necessary.
     if (message === 'kill') {
       // node tests done, now continue with browsers
-      /*process.stdout.write(`(node.js)\tpass\tall tests!
-`)*/
+      /* process.stdout.write(`(node.js)\tpass\tall tests!
+`) */
       return
     }
     var os = require('os')
@@ -61,7 +65,6 @@ export function finishTest (message) {
       process.stderr.write(`(node.js)\tfail\t${message}\n`)
       process.exit(exitcode)
     }
-
   }
 }
 
@@ -73,7 +76,7 @@ if (typeof window !== 'undefined') {
     )
   }
 
-  window.addEventListener('unhandledrejection', function(event) {
+  window.addEventListener('unhandledrejection', function (event) {
     finishTest(
       `ERROR unhandled: ${event}`
     )
