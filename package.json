@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "node ./test.js",
-    "gpminstall": "npm i -g https://github.com/isysd-mirror/gpm/.git",
+    "gpminstall": "npm i -g https://github.com/isysd-mirror/gpm.git",
     "preinstall": "gpm -n .. -t .. -u https -i .",
     "postinstall": "node -e \"try { require('../esm/esm.js')(module); } catch (e) {require('child_process').execSync('npm i', {cwd: require('path').join('..', 'esm')})}\""
   },
@@ -24,11 +24,11 @@
     "tree-kill": "../tree-kill"
   },
   "peerDependencies": {
-    "@isysd/gpm": "https://github.com/isysd-mirror/gpm/.git"
+    "@isysd/gpm": "https://github.com/isysd-mirror/gpm.git"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/isysd-mirror/iso-test/.git"
+    "url": "https://github.com/isysd-mirror/iso-test.git"
   },
   "keywords": [
     "isomorphic",
