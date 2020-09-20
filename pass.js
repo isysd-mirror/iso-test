@@ -1,5 +1,5 @@
-import global from '../global/global.js'
-import { Process } from '../process/process.js'
+import global from '../@guld/global/global.js'
+import { Process } from '../@guld/process/process.js'
 import { finishTest } from './index.js'
 global.process = Process.getProcess()
 
