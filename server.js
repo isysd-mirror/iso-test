@@ -158,8 +158,8 @@ function testPageHandler (req, res) {
 <head>
 <meta charset="UTF-8">
 <script type="module">
-  import global from '../global/global.js'
-  import { Process } from '../process/process.js'
+  import global from '../always-global/global.js'
+  import { Process } from '../iso-process/process.js'
   global.process = Process.getProcess()
   global.process.options.env = global.process.options.env || {}
   global.process.options.env = Object.assign(global.process.options.env, ${JSON.stringify(process.env)})
@@ -259,7 +259,7 @@ ${toload}
     process.exit(1)
   })
   setTimeout(() => {
-    process.stderr.write(`test timeout
+    process.stderr.write(`(browser)\tfail\ttest timeout
 `)
     killBrowser(1)
   }, parseInt(process.env.TEST_TIMEOUT))
