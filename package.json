@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "node ./test.js",
-    "gpminstall": "npm i -g https://github.com/isysd-mirror/gpm.git",
+    "gpminstall": "npm i -g https://github.com/isysd-mirror/gpm.git#isysd",
     "preinstall": "gpm -n .. -t .. -u https -d 1 -i .",
     "postinstall": "node -e \"try { require('../esm/esm.js')(module); } catch (e) {require('child_process').execSync('npm i', {cwd: require('path').join('..', 'esm')})}\""
   },
@@ -24,7 +24,7 @@
     "tree-kill": "../tree-kill"
   },
   "peerDependencies": {
-    "gpm": "https://github.com/isysd-mirror/gpm.git"
+    "gpm": "https://github.com/isysd-mirror/gpm.git#isysd"
   },
   "repository": {
     "type": "git",
