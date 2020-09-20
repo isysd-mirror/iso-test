@@ -32,7 +32,7 @@ Environment variables and `.env` files are used to configure iso-test. Interpret
 | HEADLESS | 0       | Run in headless mode if 1/true |
 | SKIPNODE | 0       | Skip running the tests in node and only try the browser. |
 | DEBUG    | 0       | Print extra debug lines. |
-| TEST_TIMEOUT | 15000 | Maximum text execution time in ms. |
+| TEST_TIMEOUT | 10000 | Maximum text execution time in ms. |
 
 ### Isomorphic modules
 

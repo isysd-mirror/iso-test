@@ -43,9 +43,9 @@ var testscript = path.resolve(process.pwd, '..', 'iso-test', 'index.js').replace
 // Will exit with code 1 if fail, or continue if all pass
 if (typeof (process.env.SKIPNODE) === 'undefined' || process.env.SKIPNODE === 'false' || process.env.SKIPNODE === '0') require(path.join(process.env.PWD, path.basename(testfile)))
 
-// default to 10 second timeout since running externally,
+// default to 15 second timeout since running externally,
 // possibly in test env like headless
-process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 10000
+process.env.TEST_TIMEOUT = process.env.TEST_TIMEOUT || 15000
 
 function rimrafSync (d) {
   /*
