@@ -11,7 +11,7 @@
   "scripts": {
     "test": "node ./test.js",
     "gpminstall": "npm i -g https://github.com/isysd-mirror/gpm.git",
-    "preinstall": "gpm -n .. -t .. -u https -i .",
+    "preinstall": "gpm -n .. -t .. -u https -i -d 1 .",
     "postinstall": "node -e \"try { require('../esm/esm.js')(module); } catch (e) {require('child_process').execSync('npm i', {cwd: require('path').join('..', 'esm')})}\""
   },
   "author": "isysd",
@@ -20,7 +20,7 @@
     "dotenv": "../dotenv",
     "esm": "../esm",
     "open": "../open",
-    "@guld/process": "../@guld/process",
+    "iso-process": "../process",
     "tree-kill": "../tree-kill"
   },
   "peerDependencies": {
