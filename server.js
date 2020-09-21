@@ -207,7 +207,7 @@ ${toload}
   process.env.BROWSER = process.env.BROWSER || 'chromium-browser'
   if (process.env.BROWSER.indexOf('chromium') > -1) {
     if (process.platform === 'win32') args.push('chromium')
-    else if (process.platform === 'darwin') args.push('/Applications/Chromium.app/Contents/MacOS/Chromium')
+    else if (process.platform === 'darwin') args.push('Chromium')
     else args.push('chromium-browser')
     args.push('--temp-profile')
     if (
