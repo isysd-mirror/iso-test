@@ -1,5 +1,7 @@
 before_install:
   - npm i -g https://github.com/IonicaBizau/gpm.git
+install:
+  - npm i
 matrix:
   include:
   - os: linux
