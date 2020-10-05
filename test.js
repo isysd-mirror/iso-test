@@ -39,8 +39,8 @@ async function runTest (p, expectfail = false, skipnode = false) {
 async function runAll () {
   await runTest(path.join(process.cwd(), 'pass.js'))
   await runTest(path.join(process.cwd(), 'fail.js'), true)
-  await runTest(path.join(process.cwd(), 'fail.js'), true, true)
   await runTest(path.join(process.cwd(), 'error.js'), true)
+  await runTest(path.join(process.cwd(), 'fail.js'), true, true)
   await runTest(path.join(process.cwd(), 'error.js'), true, true)
   console.log('All tests passed!')
 }

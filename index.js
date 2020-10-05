@@ -3,6 +3,7 @@ import global from '../always-global/global.js'
 import { Process } from '../iso-process/process.js'
 global.process = Process.getProcess()
 var scriptpath
+var allpassed = true
 
 export function finishTest (message) {
   /*
@@ -14,7 +15,6 @@ export function finishTest (message) {
    *
    * If called from a browser, will make a get request to the test server, forwarding the result.
    */
-  var exitcode = 1
   if (typeof message !== 'string') {
     if (message.hasOwnProperty('toString')) message = message.toString()
     else {
@@ -25,7 +25,6 @@ export function finishTest (message) {
       }
     }
   }
-  if (message.match(/^pass.*/i)) exitcode = 0
   // If in browser, try to set the title and body to the message, for visual debugging
   if (typeof window === 'object') {
     try {
@@ -41,15 +40,16 @@ export function finishTest (message) {
     // Running in browser.
     // Forward results to test server.
     fetch(
-      `http://localhost:3001/test/done?code=${exitcode}&message=${encodeURIComponent(message)}`
+      `${location.origin}/test/done?code=${allpassed ? 0 : 1}&message=${encodeURIComponent(message)}`
     )
   } else {
     // Running in nodejs.
     // Print results directly then exit if necessary.
     if (message === 'kill') {
       // node tests done, now continue with browsers
-      /* process.stdout.write(`(node.js)\tpass\tall tests!
-`) */
+      if (process.env.SKIP_BROWSER) {
+        process.exit(allpassed ? 0 : 1)
+      }
       return
     }
     var os = require('os')
@@ -59,11 +59,11 @@ export function finishTest (message) {
         .replace(process.env.HOME, '')
         .replace(os.homedir(), '')
         .replace(/\\/g, '/')
-    if (exitcode === 0) {
+    if (allpassed) {
       process.stdout.write(`(node.js)\tpass\t${message.replace(/pass */, '')}\n`)
     } else {
       process.stderr.write(`(node.js)\tfail\t${message}\n`)
-      process.exit(exitcode)
+      process.exit(1)
     }
   }
 }
