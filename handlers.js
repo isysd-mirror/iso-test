@@ -43,7 +43,7 @@ export function finishTestHandler (req, res) {
 
 // Dynamic html generator to load test case.
 // Creates a plain html file with only the iso-test module and your test.
-export function testPageHandler (req, res, testscript, toload) {
+export function testPageHandler (req, res, testscript, toload, inject='') {
   var content = `
 <!DOCTYPE html>
 <html>
@@ -55,6 +55,7 @@ export function testPageHandler (req, res, testscript, toload) {
   global.process = Process.getProcess()
   global.process.options.env = global.process.options.env || {}
   global.process.options.env = Object.assign(global.process.options.env, ${JSON.stringify(process.env)})
+  ${inject}
   import '${testscript}'
 </script>
 </head>

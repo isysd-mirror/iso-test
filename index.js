@@ -25,6 +25,7 @@ export function finishTest (message) {
       }
     }
   }
+  if (message !== 'kill' && !message.match(/^pass.*/i)) allpassed = false
   // If in browser, try to set the title and body to the message, for visual debugging
   if (typeof window === 'object') {
     try {
